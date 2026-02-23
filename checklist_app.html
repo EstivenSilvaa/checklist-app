@@ -136,9 +136,11 @@
                     render();
                 } else {
                     console.error('Error cargando datos:', response.status);
+                    alert('Error cargando datos: ' + response.status);
                 }
             } catch (error) {
                 console.error('Error de red:', error);
+                alert('Error de red: ' + error.message);
             }
         }
 
@@ -173,9 +175,11 @@
                     await loadData();
                 } else {
                     console.error('Error en respuesta');
+                    alert('Error creando grupo: ' + response.status);
                 }
             } catch (error) {
                 console.error('Error creando estructura:', error);
+                alert('Error de red creando grupo: ' + error.message);
             }
         }
 
