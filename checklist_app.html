@@ -105,24 +105,53 @@
     </div>
 
     <script>
-        // --- Almacenamiento Local (Persistence offline) ---
         let sections = JSON.parse(localStorage.getItem('checklist_v_final')) || [];
+        let dbAvailable = false;
 
-        // --- Tema Oscuro/Claro ---
         const themeToggle = document.getElementById('themeToggle');
+        
         function updateThemeUI() {
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
             document.getElementById('moonIcon').classList.toggle('hidden', isDark);
         }
+        
         themeToggle.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
             updateThemeUI();
         });
+        
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             updateThemeUI();
+        }
+
+        // Verificar disponibilidad de BD
+        async function checkDB() {
+            try {
+                const response = await fetch('/api/checklist', { signal: AbortSignal.timeout(2000) });
+                if (response.ok) {
+                    dbAvailable = true;
+                    console.log('✓ BD disponible');
+                    syncFromDB();
+                }
+            } catch (err) {
+                dbAvailable = false;
+                console.log('BD no disponible, usando localStorage');
+            }
+        }
+
+        async function syncFromDB() {
+            try {
+                const response = await fetch('/api/checklist');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Sincronizado desde BD');
+                }
+            } catch (err) {
+                console.log('Error sincronizando:', err);
+            }
         }
 
         function save() {
@@ -132,23 +161,56 @@
         }
 
         function resetData() {
-            if(confirm("¿Deseas eliminar todo el contenido?")) {
+            if(confirm("¿Deseas eliminar todo?")) {
                 sections = [];
                 save();
             }
         }
 
-        function addStructure() {
+        async function addStructure() {
             const m = document.getElementById('mainTitleInput').value.trim();
             const g = document.getElementById('groupTitleInput').value.trim();
             if (!m || !g) return;
 
+            // Agregar localmente
             let section = sections.find(s => s.title === m);
             if (!section) {
-                section = { title: m, groups: [], completed: false };
+                section = { 
+                    id: Date.now(), 
+                    title: m, 
+                    groups: [], 
+                    completed: false 
+                };
                 sections.push(section);
             }
-            section.groups.push({ title: g, items: [], completed: false });
+            
+            const newGroup = { 
+                id: Date.now() + Math.random(), 
+                section_id: section.id,
+                title: g, 
+                items: [], 
+                completed: false 
+            };
+            section.groups.push(newGroup);
+            
+            // Intentar guardar en BD
+            if (dbAvailable) {
+                try {
+                    await fetch('/api/sections', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: m })
+                    });
+                    await fetch('/api/groups', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ section_id: section.id, title: g })
+                    });
+                } catch (err) {
+                    console.log('Error guardando en BD, pero guardado localmente');
+                }
+            }
+            
             document.getElementById('groupTitleInput').value = "";
             document.getElementById('mainTitleInput').value = "";
             save();
@@ -159,7 +221,22 @@
                 const input = document.getElementById(`in-${sIdx}-${gIdx}`);
                 const val = input.value.trim();
                 if (val) {
-                    sections[sIdx].groups[gIdx].items.push({ name: val, completed: false });
+                    const newItem = { 
+                        id: Date.now() + Math.random(), 
+                        name: val, 
+                        completed: false 
+                    };
+                    sections[sIdx].groups[gIdx].items.push(newItem);
+                    
+                    // Intentar guardar en BD
+                    if (dbAvailable) {
+                        fetch('/api/items', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ group_id: sections[sIdx].groups[gIdx].id, name: val })
+                        }).catch(err => console.log('Error guardando item en BD'));
+                    }
+                    
                     input.value = "";
                     save();
                     document.getElementById(`in-${sIdx}-${gIdx}`).focus();
@@ -249,7 +326,9 @@
                 container.appendChild(sDiv);
             });
         }
+        
         render();
+        checkDB();
     </script>
 </body>
 </html>
