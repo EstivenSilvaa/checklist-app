@@ -1,11 +1,12 @@
 const mysql = require('mysql2');
 
-// Configuración de la conexión a la base de datos en la nube (sin especificar DB para crear)
+// Configuración de la conexión a la base de datos en la nube
 const db = mysql.createConnection({
-    host: 'crossover.proxy.rlwy.net',
-    user: 'root',
-    password: 'oubJHjRNTwVtyCYdNBzyobuVvIVAzbNi',
-    port: 47650,
+    host: process.env.MYSQLHOST || 'crossover.proxy.rlwy.net',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || 'oubJHjRNTwVtyCYdNBzyobuVvIVAzbNi',
+    database: process.env.MYSQLDATABASE || 'ferrocarril',
+    port: process.env.MYSQLPORT || 47650,
     multipleStatements: true
 });
 
