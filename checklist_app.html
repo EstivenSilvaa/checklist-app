@@ -128,12 +128,14 @@
         // --- Cargar Datos desde la API ---
         async function loadData() {
             try {
+                console.log('Cargando datos...');
                 const response = await fetch('/api/checklist');
                 if (response.ok) {
                     sections = await response.json();
+                    console.log('Datos cargados:', sections);
                     render();
                 } else {
-                    console.error('Error cargando datos');
+                    console.error('Error cargando datos:', response.status);
                 }
             } catch (error) {
                 console.error('Error de red:', error);
@@ -158,15 +160,19 @@
             const g = document.getElementById('groupTitleInput').value.trim();
             if (!m || !g) return;
 
+            console.log('Creando estructura:', m, g);
             try {
                 const response = await fetch('/api/structure', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mainTitle: m, groupTitle: g })
                 });
+                console.log('Respuesta:', response.status);
                 if (response.ok) {
                     document.getElementById('groupTitleInput').value = "";
                     await loadData();
+                } else {
+                    console.error('Error en respuesta');
                 }
             } catch (error) {
                 console.error('Error creando estructura:', error);
