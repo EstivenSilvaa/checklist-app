@@ -32,35 +32,20 @@ db.connect((err) => {
     }
     console.log('Conectado a la base de datos MySQL');
 
-    // Crear tablas si no existen
-    const schema = `
-        CREATE TABLE IF NOT EXISTS sections (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            completed BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS groups (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            section_id INT NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            completed BOOLEAN DEFAULT FALSE,
-            FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
-        );
-        CREATE TABLE IF NOT EXISTS items (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            group_id INT NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            completed BOOLEAN DEFAULT FALSE,
-            FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
-        );
-    `;
-    db.query(schema, (err) => {
-        if (err) {
-            console.error('Error creando tablas:', err);
-        } else {
-            console.log('Tablas verificadas/creadas');
-        }
+    // Crear tablas si no existen (ejecutadas una por una)
+    db.query(`CREATE TABLE IF NOT EXISTS sections (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, completed BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`, (err) => {
+        if (err) console.error('Error en sections:', err);
+        else console.log('Tabla sections ok');
+    });
+
+    db.query(`CREATE TABLE IF NOT EXISTS groups (id INT AUTO_INCREMENT PRIMARY KEY, section_id INT NOT NULL, title VARCHAR(255) NOT NULL, completed BOOLEAN DEFAULT FALSE, FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE)`, (err) => {
+        if (err) console.error('Error en groups:', err);
+        else console.log('Tabla groups ok');
+    });
+
+    db.query(`CREATE TABLE IF NOT EXISTS items (id INT AUTO_INCREMENT PRIMARY KEY, group_id INT NOT NULL, name VARCHAR(255) NOT NULL, completed BOOLEAN DEFAULT FALSE, FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE)`, (err) => {
+        if (err) console.error('Error en items:', err);
+        else console.log('Tabla items ok');
     });
 });
 
