@@ -5,7 +5,7 @@ const db = mysql.createConnection({
     host: process.env.MYSQLHOST || 'crossover.proxy.rlwy.net',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'oubJHjRNTwVtyCYdNBzyobuVvIVAzbNi',
-    database: process.env.MYSQLDATABASE || 'ferrocarril',
+    database: process.env.MYSQLDATABASE || 'railway',
     port: process.env.MYSQLPORT || 47650,
     multipleStatements: true
 });
@@ -19,14 +19,14 @@ db.connect((err) => {
 });
 
 // Ejecutar el esquema paso a paso
-db.query('CREATE DATABASE IF NOT EXISTS ferrocarril;', (err) => {
+db.query('CREATE DATABASE IF NOT EXISTS railway;', (err) => {
     if (err) {
         console.error('Error creando la base de datos:', err);
         return;
     }
     console.log('Base de datos creada');
 
-    db.query('USE ferrocarril;', (err) => {
+    db.query('USE railway;', (err) => {
         if (err) {
             console.error('Error cambiando a la base de datos:', err);
             return;

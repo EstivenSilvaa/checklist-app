@@ -20,7 +20,7 @@ const db = mysql.createConnection({
     host: process.env.MYSQLHOST || 'crossover.proxy.rlwy.net',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'oubJHjRNTwVtyCYdNBzyobuVvIVAzbNi',
-    database: process.env.MYSQLDATABASE || 'ferrocarril',
+    database: process.env.MYSQLDATABASE || 'railway',
     port: process.env.MYSQLPORT || 47650
 });
 
