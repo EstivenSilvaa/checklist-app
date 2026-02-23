@@ -10,6 +10,11 @@ app.use(express.json());
 // Servir archivos estáticos desde el directorio actual
 app.use(express.static(path.join(__dirname)));
 
+// Ruta para servir el HTML principal
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'checklist_app.html'));
+});
+
 // Configuración de la conexión a la base de datos en la nube
 const db = mysql.createConnection({
     host: 'crossover.proxy.rlwy.net',
