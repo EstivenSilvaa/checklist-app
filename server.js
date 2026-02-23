@@ -21,7 +21,8 @@ const db = mysql.createConnection({
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'oubJHjRNTwVtyCYdNBzyobuVvIVAzbNi',
     database: process.env.MYSQLDATABASE || 'railway',
-    port: process.env.MYSQLPORT || 47650
+    port: process.env.MYSQLPORT || 47650,
+    multipleStatements: true
 });
 
 db.connect((err) => {
